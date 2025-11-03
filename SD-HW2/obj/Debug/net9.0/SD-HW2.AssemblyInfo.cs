@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SD-HW2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+79fb1b305fdbf583089a71afb10fab7daf476475")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+efe660c8cb16fe8e5c54e8123bc8645749e3a98a")]
 [assembly: System.Reflection.AssemblyProductAttribute("SD-HW2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SD-HW2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

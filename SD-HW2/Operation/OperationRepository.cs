@@ -71,6 +71,7 @@ public class OperationRepository
         foreach (var operation in Operations.Where(operation => operation.Id == id))
         {
             Operations.Remove(operation);
+            found = true;
             break;
         }
 

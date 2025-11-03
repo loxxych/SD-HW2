@@ -520,7 +520,8 @@ public class ConsoleService
     {
         return AnsiConsole.Prompt(
             new TextPrompt<string>("[yellow]Введите описание:[/]")
-                .PromptStyle("yellow"));
+                .PromptStyle("yellow")
+                .AllowEmpty());
     }
     private void ShowAddOperationMenu()
     {
@@ -556,7 +557,7 @@ public class ConsoleService
                 .PageSize(10)
                 .AddChoices(operations));
 
-        _operationRepository.RemoveOperation(int.Parse(choice.Split(':')[0]));
+        _operationRepository.RemoveOperation(int.Parse(choice.Split(':')[0].Trim()));
         
         AnsiConsole.Clear();
         
