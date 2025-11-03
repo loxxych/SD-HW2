@@ -9,6 +9,7 @@
       "SD-HW2/1.0.0": {
         "dependencies": {
           "CsvHelper": "33.1.0",
+          "Microsoft.Extensions.DependencyInjection": "10.0.0-rc.2.25502.107",
           "Newtonsoft.Json": "13.0.4",
           "Spectre.Console": "0.53.1-preview.0.2"
         },
@@ -21,6 +22,25 @@
           "lib/net9.0/CsvHelper.dll": {
             "assemblyVersion": "33.0.0.0",
             "fileVersion": "33.1.0.26"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection/10.0.0-rc.2.25502.107": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0-rc.2.25502.107"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.DependencyInjection.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.50307"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.0-rc.2.25502.107": {
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.50307"
           }
         }
       },
@@ -54,6 +74,20 @@
       "sha512": "sha512-kqfTOZGrn7NarNeXgjh86JcpTHUoeQDMB8t9NVa/ZtlSYiV1rxfRnQ49WaJsob4AiGrbK0XDzpyKkBwai4F8eg==",
       "path": "csvhelper/33.1.0",
       "hashPath": "csvhelper.33.1.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyInjection/10.0.0-rc.2.25502.107": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-mDw80K98jBWCyLFCra51PRv+Ttnjse1lZIzXEFybKby0/ajBFTEeHj/4r/QJexmb8Uun0yaFH1HlFtmHP1YEVA==",
+      "path": "microsoft.extensions.dependencyinjection/10.0.0-rc.2.25502.107",
+      "hashPath": "microsoft.extensions.dependencyinjection.10.0.0-rc.2.25502.107.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/10.0.0-rc.2.25502.107": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8jujunpkNNfTkE9PFHp9/aD6GPKVfNCuz8tUbzOcyU5tQOCoIZId4hwQNVx3Tb8XEWw9BYdh0k5vPpqdCM+UtA==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/10.0.0-rc.2.25502.107",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.10.0.0-rc.2.25502.107.nupkg.sha512"
     },
     "Newtonsoft.Json/13.0.4": {
       "type": "package",

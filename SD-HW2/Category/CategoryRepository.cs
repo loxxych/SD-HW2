@@ -11,11 +11,7 @@ public class CategoryRepository
         get
         {
             List<String> categoriesNames = [];
-
-            foreach (var category in Categories)
-            {
-                categoriesNames.Add(category.Name);
-            }
+            categoriesNames.AddRange(Categories.Select(category => category.Name));
 
             return categoriesNames;
         }

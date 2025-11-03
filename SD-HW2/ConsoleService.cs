@@ -11,14 +11,17 @@ public class ConsoleService
     private CategoryRepository _categoryRepository;
     private BankAccountRepository _bankAccountRepository;
     private OperationRepository _operationRepository;
+    private OperationManager _operationManager;
 
     public ConsoleService(CategoryRepository categoryRepository,
         BankAccountRepository bankAccountRepository,
-        OperationRepository operationRepository)
+        OperationRepository operationRepository,
+        OperationManager operationManager)
     {
         _categoryRepository = categoryRepository;
         _bankAccountRepository = bankAccountRepository;
         _operationRepository = operationRepository;
+        _operationManager = operationManager;
     }
     
     public void ShowMainMenu()
@@ -409,16 +412,16 @@ public class ConsoleService
                 
         switch (choice)
         {
-            case "Просмотр счетов":
+            case "Просмотр операций":
                 ShowOperations();
                 break;
-            case "Добавление счета":
+            case "Добавление операции":
                 ShowAddOperationMenu();
                 break;
-            case "Удаление счета":
+            case "Удаление операции":
                 ShowDeleteOperationMenu();
                 break;
-            case "Редактирование счета":
+            case "Редактирование операции":
                 ShowEditOperationMenu();
                 break;
             case "<- Назад":
@@ -467,15 +470,11 @@ public class ConsoleService
             new TextPrompt<string>("Нажмите Enter чтобы вернуться")
                 .AllowEmpty());
         
-        ShowBankAccountMenu();
+        ShowOperationMenu();
     }
-    
-    private void ShowAddOperationMenu()
-    {
-        AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[bold green]Добавление операции[/]");
-        AnsiConsole.WriteLine();
 
+    private BankAccount.BankAccount ChooseAccount()
+    {
         var accounts = _bankAccountRepository.BankAccountNames;
         
         var accountStr = AnsiConsole.Prompt(
@@ -484,8 +483,11 @@ public class ConsoleService
                 .PageSize(10)
                 .AddChoices(accounts));
         
-        var account = _bankAccountRepository.FindBankAccount(accountStr);
-        
+        return _bankAccountRepository.FindBankAccount(accountStr);
+    }
+
+    private Category.Category ChooseCategory()
+    {
         var type = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("[yellow]Выберите тип:[/]")
@@ -503,15 +505,33 @@ public class ConsoleService
                 .Title("[yellow]Выберите категорию:[/]")
                 .PageSize(10)
                 .AddChoices(typeCategories));
-        var category = _categoryRepository.FindCategory(categoryStr);
         
-        var amount = AnsiConsole.Prompt(
+        return _categoryRepository.FindCategory(categoryStr);
+    }
+
+    private Double ChooseAmount()
+    {
+        return AnsiConsole.Prompt(
             new TextPrompt<double>("[yellow]Введите сумму:[/]")
                 .PromptStyle("yellow"));
-        
-        var description = AnsiConsole.Prompt(
+    }
+
+    private string ChooseDescription()
+    {
+        return AnsiConsole.Prompt(
             new TextPrompt<string>("[yellow]Введите описание:[/]")
                 .PromptStyle("yellow"));
+    }
+    private void ShowAddOperationMenu()
+    {
+        AnsiConsole.Clear();
+        AnsiConsole.MarkupLine("[bold green]Добавление операции[/]");
+        AnsiConsole.WriteLine();
+
+        var account = ChooseAccount();
+        var category = ChooseCategory();
+        var amount = ChooseAmount();
+        var description = ChooseDescription();
         
         _operationRepository.AddOperation(amount, account, description, category);
         
@@ -521,57 +541,97 @@ public class ConsoleService
             new TextPrompt<string>("Нажмите Enter чтобы вернуться")
                 .AllowEmpty());
         
-        ShowBankAccountMenu();
+        ShowOperationMenu();
     }
 
-    void ShowDeleteBankAccountMenu()
+    private void ShowDeleteOperationMenu()
     {
         AnsiConsole.Clear();
         
-        var bankAccounts = _bankAccountRepository.BankAccountNames;
+        var operations = _operationRepository.OperationsInfo;
         
         var choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title("[bold red]Выберите счет для удаления:[/]")
+                .Title("[bold red]Выберите операцию для удаления:[/]")
                 .PageSize(10)
-                .AddChoices(bankAccounts));
+                .AddChoices(operations));
 
-        _bankAccountRepository.RemoveBankAccount(choice);
+        _operationRepository.RemoveOperation(int.Parse(choice.Split(':')[0]));
         
         AnsiConsole.Clear();
         
-        AnsiConsole.MarkupLine("[green]Счет удален[/]");
+        AnsiConsole.MarkupLine("[green]Операция удалена[/]");
         
         AnsiConsole.Prompt(
             new TextPrompt<string>("Нажмите Enter чтобы вернуться")
                 .AllowEmpty());
-        ShowBankAccountMenu();
+        ShowOperationMenu();
     }
 
-    void ShowEditBankAccountMenu()
+    private void ShowEditOperationMenu()
     {
         AnsiConsole.Clear();
         
-        var bankAccounts = _bankAccountRepository.BankAccountNames;
+        var operations = _operationRepository.OperationsInfo;
         
-        var account = AnsiConsole.Prompt(
+        // Проверяем, есть ли операции для редактирования
+        if (!operations.Any())
+        {
+            AnsiConsole.MarkupLine("[red]Нет доступных операций для редактирования![/]");
+            AnsiConsole.MarkupLine("[yellow]Сначала создайте операции в меню добавления операций.[/]");
+            AnsiConsole.Prompt(
+                new TextPrompt<string>("Нажмите Enter чтобы вернуться")
+                    .AllowEmpty());
+            ShowOperationMenu();
+            return;
+        }
+        
+        var op = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title("[yellow]Выберите счет для редактирования:[/]")
+                .Title("[bold green]Выберите операцию для редактирования:[/]")
                 .PageSize(10)
-                .AddChoices(bankAccounts));
+                .AddChoices(operations));
                 
-        var name = AnsiConsole.Prompt(
-            new TextPrompt<string>("[yellow]Введите новое название:[/]")
-                .PromptStyle("green"));
+        var id = int.Parse(op.Split(':')[0]);
         
-        _bankAccountRepository.ChangeAccountName(account, name);
+        var field = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[yellow]Выберите что отредактировать:[/]")
+                .PageSize(10)
+                .AddChoices(new[]
+                {
+                    "Счет",
+                    "Категория",
+                    "Сумма",
+                    "Описание"
+                }));
+        
+        switch (field)
+        {
+            case "Счет":
+                var account = ChooseAccount();
+                _operationManager.ChangeAccount(id, account);
+                break;
+            case "Категория":
+                var category = ChooseCategory();
+                _operationManager.ChangeCategory(id, category);
+                break;
+            case "Сумма":
+                var amount = ChooseAmount();
+                _operationManager.ChangeAmount(id, amount);
+                break;
+            case "Описание":
+                var description = ChooseDescription();
+                _operationManager.ChangeDescription(id, description);
+                break;
+        }
         
         AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[green]Название изменено[/]");
+        AnsiConsole.MarkupLine("[green]Поле изменено[/]");
         
         AnsiConsole.Prompt(
             new TextPrompt<string>("Нажмите Enter чтобы вернуться")
                 .AllowEmpty());
-        ShowBankAccountMenu();
+        ShowOperationMenu();
     }
 }

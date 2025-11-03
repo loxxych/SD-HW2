@@ -17,3 +17,6 @@
 /Users/loxxych/RiderProjects/SD-HW2/SD-HW2/obj/Debug/net9.0/SD-HW2.csproj.Up2Date
 /Users/loxxych/RiderProjects/SD-HW2/SD-HW2/bin/Debug/net9.0/Newtonsoft.Json.dll
 /Users/loxxych/RiderProjects/SD-HW2/SD-HW2/bin/Debug/net9.0/Spectre.Console.dll
+/Users/loxxych/RiderProjects/SD-HW2/SD-HW2/bin/Debug/net9.0/Microsoft.Extensions.DependencyInjection.dll
+/Users/loxxych/RiderProjects/SD-HW2/SD-HW2/bin/Debug/net9.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/Users/loxxych/RiderProjects/SD-HW2/SD-HW2/obj/Debug/net9.0/SD-HW2.sourcelink.json

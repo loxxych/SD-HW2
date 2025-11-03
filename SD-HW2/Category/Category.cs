@@ -8,14 +8,11 @@ public enum Type
 
 public class Category
 {
-    public int Id;
+    public int Id { get; } = Guid.NewGuid().GetHashCode();
     public Type Type { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = "N/A";
 
-    public Category()
-    {
-        Id =  Guid.NewGuid().GetHashCode();
-    }
+    public Category() { }
 
     public Category(Type type, string name)
     {

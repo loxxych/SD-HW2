@@ -5,22 +5,13 @@ namespace SD_HW2.BankAccount;
 /// </summary>
 public class BankAccountManager
 {
-    private BankAccountRepository _bankAccountRepository;
-
-    public BankAccountManager(BankAccountRepository bankAccountRepository)
+    public void Withdraw(BankAccount account, double amount)
     {
-        _bankAccountRepository = bankAccountRepository;
-    }
-
-    void Withdraw(string accountName, double amount)
-    {
-        var account = _bankAccountRepository.FindBankAccount(accountName);
         account.Balance -= amount;
     }
 
-    void Deposit(string accountName, double amount)
+    public void Deposit(BankAccount account, double amount)
     {
-        var account = _bankAccountRepository.FindBankAccount(accountName);
         account.Balance += amount;
     }
 }

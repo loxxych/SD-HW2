@@ -7,34 +7,30 @@ namespace SD_HW2.Operation;
 public class Operation : IComponent
 {
     [JsonProperty("id")]
-    public int Id;
+    public int Id { get; init; } = Guid.NewGuid().GetHashCode();
     
     [JsonIgnore]
-    public BankAccount.BankAccount BankAccount;
+    public BankAccount.BankAccount BankAccount { get; set; }
     
     [JsonProperty("bankAccountName")]
     public string BankAccountName => BankAccount.Name;
     
     [JsonProperty("amount")]
-    public double Amount;
+    public double Amount { get; set; }
     
     [JsonProperty("date")]
-    public DateTime Date;
+    public DateTime Date {get; init;}
     
     [JsonProperty("description")]
-    public string? Description;
+    public string? Description { get; set; }
     
     [JsonProperty("category")]
-    public Category.Category Category;
+    public Category.Category Category { get; set; }
 
-    public Operation()
-    {
-        Id = Guid.NewGuid().GetHashCode();
-    }
+    public Operation() { }
     
     public Operation(double amount, BankAccount.BankAccount bankAccount, DateTime date, string? description, Category.Category category)
     {
-        Id = Guid.NewGuid().GetHashCode();
         BankAccount = bankAccount;
         Amount = amount;
         Date = date;
