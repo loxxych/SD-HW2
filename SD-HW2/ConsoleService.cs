@@ -1,6 +1,7 @@
 using SD_HW2.BankAccount;
 using SD_HW2.Category;
 using SD_HW2.Operation;
+using SD_HW2.Operation.Commands;
 using Spectre.Console;
 using Type = SD_HW2.Category.Type;
 
@@ -534,7 +535,8 @@ public class ConsoleService
         var amount = ChooseAmount();
         var description = ChooseDescription();
         
-        _operationRepository.AddOperation(amount, account, description, category);
+        var addOperationCommand = new AddOperationCommand(_operationRepository, amount, account, description, category);
+        addOperationCommand.Execute();
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold green]Операция успешно добавлена![/]");

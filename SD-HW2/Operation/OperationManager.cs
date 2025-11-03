@@ -1,5 +1,8 @@
 namespace SD_HW2.Operation;
 
+/// <summary>
+/// Фасад для изменения полей операции
+/// </summary>
 public class OperationManager
 {
     private OperationRepository _operationRepository;

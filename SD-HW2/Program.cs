@@ -4,6 +4,8 @@ using SD_HW2.BankAccount;
 using SD_HW2.Category;
 using SD_HW2.Operation;
 using SD_HW2.FileWork;
+using SD_HW2.Operation.Commands;
+using ICommand = System.Windows.Input.ICommand;
 
 namespace SD_HW2
 {

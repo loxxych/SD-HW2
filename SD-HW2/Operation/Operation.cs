@@ -19,7 +19,7 @@ public class Operation : IComponent
     public double Amount { get; set; }
     
     [JsonProperty("date")]
-    public DateTime Date {get; init;}
+    public DateTime Date { get; init; }
     
     [JsonProperty("description")]
     public string? Description { get; set; }
