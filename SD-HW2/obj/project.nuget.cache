@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "NxAajiQdfbc=",
+  "success": true,
+  "projectFilePath": "/Users/loxxych/RiderProjects/SD-HW2/SD-HW2/SD-HW2.csproj",
+  "expectedPackageFiles": [
+    "/Users/loxxych/.nuget/packages/csvhelper/33.1.0/csvhelper.33.1.0.nupkg.sha512",
+    "/Users/loxxych/.nuget/packages/newtonsoft.json/13.0.4/newtonsoft.json.13.0.4.nupkg.sha512",
+    "/Users/loxxych/.nuget/packages/spectre.console/0.53.1-preview.0.2/spectre.console.0.53.1-preview.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}
