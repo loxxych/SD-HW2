@@ -70,6 +70,13 @@ public static class ConsoleCommands
                 }));
     }
     
+    public static string InputFileName()
+    {
+        return AnsiConsole.Prompt(
+            new TextPrompt<string>("[yellow]Введите название файла:[/]")
+                .PromptStyle("yellow"));
+    }
+    
     public static string ChooseExportData()
     {
         return AnsiConsole.Prompt(

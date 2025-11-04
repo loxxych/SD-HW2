@@ -15,8 +15,4 @@
       <PackageReference Include="Spectre.Console" Version="0.53.1-preview.0.2" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Analytics\" />
-    </ItemGroup>
-
 </Project>

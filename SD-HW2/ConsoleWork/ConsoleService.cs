@@ -1,3 +1,4 @@
+using SD_HW2.Analytics;
 using SD_HW2.BankAccount;
 using SD_HW2.Category;
 using SD_HW2.FileWork;
@@ -13,10 +14,12 @@ public class ConsoleService
 {
     
     private IExportService _exportService;
-
-    public ConsoleService(IExportService exportService)
+    private IImportService _importService;
+    
+    public ConsoleService(IExportService exportService, IImportService importService)
     {
         _exportService = exportService;
+        _importService = importService;
     }
     
     public void ShowMainMenu()
@@ -56,7 +59,7 @@ public class ConsoleService
                     ShowOperationMenu();
                     break;
                 case "Аналитика":
-                    //ShowAnalytics();
+                    ShowAnalytics();
                     break;
                 case "Экспорт в файл":
                     ShowExportMenu();
@@ -441,13 +444,13 @@ public class ConsoleService
             var id = op.Id.ToString();
             var account = op.BankAccount.Name;
             var amount = op.Amount.ToString("C");
-            var date = op.Date.ToString("yyyy/MM/dd");
+            var date = op.Date.ToString("yyyy-MM-ddTHH:mm:ss");
             var description = op.Description;
             var category = op.Category.Name;
             var type = op.Category.Type;
             var typeStr = type == Type.Withdrawal? "Расход" : "Доход";
         
-            table.AddRow(id, account, amount,  date, description, category, typeStr);
+            table.AddRow(id, account, amount, date, description, category, typeStr);
         }
             
         AnsiConsole.Write(table);
@@ -572,11 +575,8 @@ public class ConsoleService
 
         var exportData = ConsoleCommands.ChooseExportData();
         var format = ConsoleCommands.ChooseFormat();
+        var fileName = ConsoleCommands.InputFileName();
         
-        var fileName = AnsiConsole.Prompt(
-            new TextPrompt<string>("[yellow]Введите название файла ('filename.fmt'):[/]")
-                .PromptStyle("yellow"));
-
         IFile file = new CsvFile("");
         
         switch(format)
@@ -611,23 +611,61 @@ public class ConsoleService
     {
         AnsiConsole.Clear();
         
-        var format = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("[yellow]Выберите формат:[/]")
-                .PageSize(10)
-                .AddChoices(new[]
-                {
-                    "Csv",
-                    "Json",
-                }));
+        var format = ConsoleCommands.ChooseFormat();
+        var fileName = ConsoleCommands.InputFileName();
         
-        var fileName = AnsiConsole.Prompt(
-            new TextPrompt<string>("[yellow]Введите название файла для импорта операций:[/]")
-                .PromptStyle("yellow"));
+        IFile file = new CsvFile("");
+        switch(format)
+        {
+            case "Csv":
+                file = new CsvFile(fileName);
+                break;
+            case "Json":
+                file = new JsonFile(fileName);
+                break;
+        }
+        
+        var ops = _importService.ImportOperations(file, format);
+        OperationRepository.AddOperations(ops);
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[green]Данные успешно импортированы![/]");
         ConsoleCommands.AwaitInput();
         ShowMainMenu();
+    }
+
+    private void ShowAnalytics()
+    {
+        AnsiConsole.Clear();
+        AnsiConsole.MarkupLine("[bold cyan]Аналитика[/]");
+        AnsiConsole.WriteLine();
+        
+        AnsiConsole.MarkupLine("[yellow]Сравнение расходов и доходов[/]");
+        var breakdownChart = new BreakdownChart()
+            .Width(60)
+            .AddItem("Доходы", AnalyticsService.SumOfDeposits, Color.Green)
+            .AddItem("Расходы", AnalyticsService.SumOfWithdrawals, Color.Red);
+        AnsiConsole.Write(breakdownChart);
+        
+        AnsiConsole.WriteLine();
+        
+        AnsiConsole.MarkupLine("[yellow]Время выполнения операций[/]");
+        // Создаем таблицу для отображения операций с временем выполнения
+        var table = new Table();
+        table.AddColumn("ID");
+        table.AddColumn("Время выполнения");
+        
+        var ops = AnalyticsService.OperationsWithStatistics;
+        foreach (var op in ops)
+        {
+            var id = op.Id.ToString();
+            var timeToComplete = op.TimeToComplete.ToString();
+        
+            table.AddRow(id, timeToComplete);
+        }
+            
+        AnsiConsole.Write(table);
+        
+        ConsoleCommands.AwaitInput();
     }
 }

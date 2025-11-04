@@ -1,5 +1,8 @@
 namespace SD_HW2.Operation.Commands;
 
+/// <summary>
+/// Команда для добавления новой операции
+/// </summary>
 public class AddOperationCommand : ICommand
 {
     private readonly double _amount;
@@ -16,6 +19,9 @@ public class AddOperationCommand : ICommand
         _category = category;
     }
     
+    /// <summary>
+    /// Добавляет новую операцию
+    /// </summary>
     public void Execute()
     {
         OperationRepository.AddOperation(_amount, _bankAccount, _description, _category);
