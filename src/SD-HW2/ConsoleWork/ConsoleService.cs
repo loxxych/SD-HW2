@@ -683,7 +683,7 @@ public class ConsoleService(
         AnsiConsole.Clear();
 
         const string format = "Csv";
-        AnsiConsole.MarkupLine("[bold blue]Импорт из csv файла[/]");
+        AnsiConsole.MarkupLine("[bold blue]Импорт операций из csv файла[/]");
         var fileName = ConsoleCommands.InputFileName();
         
         IFile file = new CsvFile(fileName);
