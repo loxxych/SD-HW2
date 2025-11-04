@@ -111,6 +111,7 @@ public static class OperationRepository
     public static void ReplaceOperations(List<Operation> operations)
     {
         Operations.Clear();
+        BankAccountRepository.BankAccounts.Clear();
         
         foreach (var operation in operations)
         {
