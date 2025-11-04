@@ -7,7 +7,7 @@ public class AddOperationCommandDecorator : ICommand
 {
     private readonly ICommand _command;
 
-    public AddOperationCommandDecorator(ICommand command)
+    protected AddOperationCommandDecorator(ICommand command)
     {
         _command = command;
     }

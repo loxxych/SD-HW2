@@ -1,27 +1,47 @@
-using SD_HW2.Analytics;
 using SD_HW2.BankAccount;
 using SD_HW2.Category;
 using SD_HW2.FileWork;
 using SD_HW2.FileWork.ExportService;
+using SD_HW2.FileWork.Files;
 using SD_HW2.Operation;
 using SD_HW2.Operation.Commands;
 using Spectre.Console;
 using Type = SD_HW2.Category.Type;
 
-namespace SD_HW2;
+namespace SD_HW2.ConsoleWork;
 
-public class ConsoleService
+/// <summary>
+/// Класс-фасад для работы с консолью
+/// </summary>
+public class ConsoleService(
+    IExportService exportService,
+    IImportService importService,
+    OperationsAnalyst operationsAnalyst,
+    WithdrawalDepositAnalyst withdrawalDepositAnalyst)
 {
+    /// <summary>
+    /// Сервис для экспорта
+    /// </summary>
+    private readonly IExportService _exportService = exportService;
     
-    private IExportService _exportService;
-    private IImportService _importService;
+    /// <summary>
+    /// Сервис для импорта
+    /// </summary>
+    private readonly IImportService _importService = importService;
     
-    public ConsoleService(IExportService exportService, IImportService importService)
-    {
-        _exportService = exportService;
-        _importService = importService;
-    }
+    /// <summary>
+    /// Стратегия аналитики операций
+    /// </summary>
+    private readonly OperationsAnalyst _operationsAnalyst = operationsAnalyst;
     
+    /// <summary>
+    /// Стратегия аналитики доходов и расходов
+    /// </summary>
+    private readonly WithdrawalDepositAnalyst _withdrawalDepositAnalyst = withdrawalDepositAnalyst;
+
+    /// <summary>
+    /// Отображает главное меню
+    /// </summary>
     public void ShowMainMenu()
     {
         while (true)
@@ -73,6 +93,9 @@ public class ConsoleService
         }
     }
 
+    /// <summary>
+    /// Отображает меню банковских счетов
+    /// </summary>
     private void ShowBankAccountMenu()
     {
         AnsiConsole.Clear();
@@ -110,6 +133,9 @@ public class ConsoleService
         }
     }
 
+    /// <summary>
+    /// Отображает информацию о доступных счетах
+    /// </summary>
     private void ShowBankAccounts()
     {
         AnsiConsole.Clear();
@@ -129,7 +155,8 @@ public class ConsoleService
         {
             var id = account.Id.ToString();
             var name = account.Name;
-            var balance = account.Balance.ToString("C"); // Форматируем как валюту
+            // Форматируем как валюту
+            var balance = account.Balance.ToString("C");
         
             table.AddRow(id, name, balance);
         }
@@ -138,10 +165,13 @@ public class ConsoleService
         AnsiConsole.WriteLine();
 
         ConsoleCommands.AwaitInput();
-        
+        // Вернуться в меню счетов
         ShowBankAccountMenu();
     }
     
+    /// <summary>
+    /// Отображает меню с добавлением нового счета
+    /// </summary>
     private void ShowAddBankAccountMenu()
     {
         AnsiConsole.Clear();
@@ -157,11 +187,14 @@ public class ConsoleService
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold green]Счет успешно добавлен![/]");
         ConsoleCommands.AwaitInput();
-        
+        // Вернуться в меню счетов
         ShowBankAccountMenu();
     }
 
-    void ShowDeleteBankAccountMenu()
+    /// <summary>
+    /// Отображает меню с удалением счета
+    /// </summary>
+    private void ShowDeleteBankAccountMenu()
     {
         AnsiConsole.Clear();
         
@@ -180,10 +213,14 @@ public class ConsoleService
         AnsiConsole.MarkupLine("[green]Счет удален[/]");
         
         ConsoleCommands.AwaitInput();
+        // Возврат в меню счетов
         ShowBankAccountMenu();
     }
 
-    void ShowEditBankAccountMenu()
+    /// <summary>
+    /// Отображает меню с изменением счета
+    /// </summary>
+    private void ShowEditBankAccountMenu()
     {
         AnsiConsole.Clear();
         
@@ -199,7 +236,7 @@ public class ConsoleService
             new TextPrompt<string>("[yellow]Введите новое название:[/]")
                 .PromptStyle("green"));
         
-        BankAccountRepository.ChangeAccountName(account, name);
+        BankAccountManager.ChangeAccountName(account, name);
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[green]Название изменено[/]");
@@ -208,6 +245,9 @@ public class ConsoleService
         ShowBankAccountMenu();
     }
 
+    /// <summary>
+    /// Отображает меню категорий
+    /// </summary>
     private void ShowCategoryMenu()
     {
         AnsiConsole.Clear();
@@ -245,6 +285,9 @@ public class ConsoleService
         }
     }
 
+    /// <summary>
+    /// Отображает доступные категории
+    /// </summary>
     private void ShowCategories()
     {
         AnsiConsole.Clear();
@@ -277,6 +320,9 @@ public class ConsoleService
         ShowCategoryMenu();
     }
     
+    /// <summary>
+    /// Отображает меню с добавлением категории
+    /// </summary>
     private void ShowAddCategoryMenu()
     {
         AnsiConsole.Clear();
@@ -308,7 +354,10 @@ public class ConsoleService
         ShowCategoryMenu();
     }
     
-    void ShowDeleteCategoryMenu()
+    /// <summary>
+    /// Отображает меню с удалением категории
+    /// </summary>
+    private void ShowDeleteCategoryMenu()
     {
         AnsiConsole.Clear();
         
@@ -330,7 +379,10 @@ public class ConsoleService
         ShowCategoryMenu();
     }
     
-    void ShowEditCategoryMenu()
+    /// <summary>
+    /// Отображает меню с редактированием категории
+    /// </summary>
+    private void ShowEditCategoryMenu()
     {
         AnsiConsole.Clear();
         
@@ -358,7 +410,7 @@ public class ConsoleService
                 var name = AnsiConsole.Prompt(
                     new TextPrompt<string>("[yellow]Введите новое название:[/]")
                         .PromptStyle("green"));
-                CategoryRepository.ChangeCategoryName(category, name);
+                CategoryManager.ChangeCategoryName(category, name);
                 break;
             case "Тип":
                 var typeStr = AnsiConsole.Prompt(
@@ -372,7 +424,7 @@ public class ConsoleService
                         }));
         
                 var type = typeStr == "Доход"? Type.Deposit : Type.Withdrawal;
-                CategoryRepository.ChangeCategoryType(category, type);
+                CategoryManager.ChangeCategoryType(category, type);
                 break;
         }
         
@@ -383,6 +435,9 @@ public class ConsoleService
         ShowCategoryMenu();
     }
     
+    /// <summary>
+    /// Отображает меню с операциями
+    /// </summary>
     private void ShowOperationMenu()
     {
         AnsiConsole.Clear();
@@ -420,6 +475,9 @@ public class ConsoleService
         }
     }
 
+    /// <summary>
+    /// Отображает произведенные операции
+    /// </summary>
     private void ShowOperations()
     {
         AnsiConsole.Clear();
@@ -429,7 +487,6 @@ public class ConsoleService
         
         var operations = OperationRepository.Operations;
 
-        // Создаем таблицу для отображения
         var table = new Table();
         table.AddColumn("ID");
         table.AddColumn("Счет");
@@ -461,7 +518,9 @@ public class ConsoleService
         ShowOperationMenu();
     }
 
-    
+    /// <summary>
+    /// Отображает меню с добавлением операции
+    /// </summary>
     private void ShowAddOperationMenu()
     {
         AnsiConsole.Clear();
@@ -483,6 +542,9 @@ public class ConsoleService
         ShowOperationMenu();
     }
 
+    /// <summary>
+    /// Отображает меню с удалением операции
+    /// </summary>
     private void ShowDeleteOperationMenu()
     {
         AnsiConsole.Clear();
@@ -504,6 +566,9 @@ public class ConsoleService
         ShowOperationMenu();
     }
 
+    /// <summary>
+    /// Отображает меню с редактированием операции
+    /// </summary>
     private void ShowEditOperationMenu()
     {
         AnsiConsole.Clear();
@@ -511,7 +576,7 @@ public class ConsoleService
         var operations = OperationRepository.OperationsInfo;
         
         // Проверяем, есть ли операции для редактирования
-        if (!operations.Any())
+        if (operations.Count == 0)
         {
             AnsiConsole.MarkupLine("[red]Нет доступных операций для редактирования![/]");
             AnsiConsole.MarkupLine("[yellow]Сначала создайте операции в меню добавления операций.[/]");
@@ -569,6 +634,9 @@ public class ConsoleService
         ShowOperationMenu();
     }
 
+    /// <summary>
+    /// Отображает меню экспорта
+    /// </summary>
     private void ShowExportMenu()
     {
         AnsiConsole.Clear();
@@ -607,26 +675,21 @@ public class ConsoleService
         ShowMainMenu();
     }
     
+    /// <summary>
+    /// Отображает меню импорта
+    /// </summary>
     private void ShowImportMenu()
     {
         AnsiConsole.Clear();
-        
-        var format = ConsoleCommands.ChooseFormat();
+
+        const string format = "Csv";
+        AnsiConsole.MarkupLine("[bold blue]Импорт из csv файла[/]");
         var fileName = ConsoleCommands.InputFileName();
         
-        IFile file = new CsvFile("");
-        switch(format)
-        {
-            case "Csv":
-                file = new CsvFile(fileName);
-                break;
-            case "Json":
-                file = new JsonFile(fileName);
-                break;
-        }
+        IFile file = new CsvFile(fileName);
         
         var ops = _importService.ImportOperations(file, format);
-        OperationRepository.AddOperations(ops);
+        OperationRepository.ReplaceOperations(ops);
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[green]Данные успешно импортированы![/]");
@@ -634,37 +697,24 @@ public class ConsoleService
         ShowMainMenu();
     }
 
+    /// <summary>
+    /// Отображает аналитику
+    /// </summary>
     private void ShowAnalytics()
     {
         AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[bold cyan]Аналитика[/]");
-        AnsiConsole.WriteLine();
-        
-        AnsiConsole.MarkupLine("[yellow]Сравнение расходов и доходов[/]");
-        var breakdownChart = new BreakdownChart()
-            .Width(60)
-            .AddItem("Доходы", AnalyticsService.SumOfDeposits, Color.Green)
-            .AddItem("Расходы", AnalyticsService.SumOfWithdrawals, Color.Red);
-        AnsiConsole.Write(breakdownChart);
-        
-        AnsiConsole.WriteLine();
-        
-        AnsiConsole.MarkupLine("[yellow]Время выполнения операций[/]");
-        // Создаем таблицу для отображения операций с временем выполнения
-        var table = new Table();
-        table.AddColumn("ID");
-        table.AddColumn("Время выполнения");
-        
-        var ops = AnalyticsService.OperationsWithStatistics;
-        foreach (var op in ops)
+        var strategy = ConsoleCommands.ChooseAnalyticsStrategy();
+
+        if (strategy == "По времени выполнения операций")
         {
-            var id = op.Id.ToString();
-            var timeToComplete = op.TimeToComplete.ToString();
-        
-            table.AddRow(id, timeToComplete);
+            AnalyticsDisplayer.SetAnalyst(_operationsAnalyst);
         }
-            
-        AnsiConsole.Write(table);
+        else
+        {
+            AnalyticsDisplayer.SetAnalyst(_withdrawalDepositAnalyst);
+        }
+        
+        AnalyticsDisplayer.DisplayAnalytics();
         
         ConsoleCommands.AwaitInput();
     }

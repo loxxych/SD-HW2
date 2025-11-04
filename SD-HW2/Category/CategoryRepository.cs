@@ -1,84 +1,88 @@
+using SD_HW2.Factories.CategoryFactory;
+using SD_HW2.Operation;
+
 namespace SD_HW2.Category;
 
+/// <summary>
+/// Представляет фасад-репозиторий категорий
+/// </summary>
 public static class CategoryRepository
 {
-    private static CategoryFactory _categoryFactory = new CategoryFactory();
+    /// <summary>
+    /// Фабрика для создания категорий
+    /// </summary>
+    private static readonly CategoryFactory CategoryFactory = new();
+    
+    /// <summary>
+    /// Доступные категории
+    /// </summary>
     public static List<Category> Categories { get; } = [];
     
-    public static List<String> CategoriesNames
+    /// <summary>
+    /// Список названий категорий
+    /// </summary>
+    public static List<string> CategoriesNames
     {
         get
         {
-            List<String> categoriesNames = [];
+            List<string> categoriesNames = [];
             categoriesNames.AddRange(Categories.Select(category => category.Name));
 
             return categoriesNames;
         }
     }
 
-    public static List<String> CategoriesByType(string typeStr)
+    /// <summary>
+    /// Формирует список категорий определенного типа
+    /// </summary>
+    /// <param name="typeStr">Тип</param>
+    /// <returns>Список категорий данного типа</returns>
+    public static List<string> CategoriesByType(string typeStr)
     {
-        List<String> categoriesNames = [];
+        List<string> categoriesNames = [];
 
         var type = typeStr == "Расход" ? Type.Withdrawal : Type.Deposit;
-        
-        foreach (var category in Categories)
-        {
-            if (category.Type == type)
-            {
-                categoriesNames.Add(category.Name);
-            }
-        }
-        
+
+        categoriesNames.AddRange(from category in Categories where category.Type == type select category.Name);
+
         return categoriesNames;
     }
     
+    
+    /// <summary>
+    /// Добавляет новую категорию
+    /// </summary>
+    /// <param name="type">Тип категории</param>
+    /// <param name="name">Название категории</param>
     public static void AddCategory(Type type, string name)
     {
-        var category = _categoryFactory.CreateCategory(type, name);
+        var category = CategoryFactory.CreateCategory(type, name);
         Categories.Add(category);
     }
 
+    /// <summary>
+    /// Удаляет категорию
+    /// </summary>
+    /// <param name="name">Название категории</param>
     public static void RemoveCategory(string name)
     {
-        bool found = false;
-        foreach (var category in Categories)
-        {
-            if (category.Name == name)
-            {
-                Categories.Remove(category);
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)
-        {
-            throw new ArgumentOutOfRangeException($"Не существует категории с именем {name} ");
-        }
+        var category = FindCategory(name);
+        Categories.Remove(category);
     }
     
+    /// <summary>
+    /// Находит категорию по названию (с учетом того, что все названия различны)
+    /// </summary>
+    /// <param name="name">Название категории</param>
+    /// <returns>Найденную категорию</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Выбрасывается, если не нашлось категории с данным названием</exception>
     public static Category FindCategory(string name)
     {
-        foreach (var category in Categories) 
+        foreach (var category in Categories.Where(category => category.Name == name))
         {
-            if (category.Name == name)
-            {
-                return category;
-            }
+            return category;
         }
+
         throw new ArgumentOutOfRangeException($"Не существует категории с именем {name}");
-    }
-    
-    public static void ChangeCategoryName(string name, string newName)
-    {
-        var category = FindCategory(name);
-        category.Name = newName;
-    }
-    
-    public static void ChangeCategoryType(string name, Type newType)
-    {
-        var category = FindCategory(name);
-        category.Type = newType;
     }
 }

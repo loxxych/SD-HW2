@@ -4,8 +4,15 @@ using Spectre.Console;
 
 namespace SD_HW2;
 
+/// <summary>
+/// Представляет класс некоторых операций с консолью
+/// </summary>
 public static class ConsoleCommands
 {
+    /// <summary>
+    /// Выбор счета из доступных
+    /// </summary>
+    /// <returns>Выбранный счет</returns>
     public static BankAccount.BankAccount ChooseAccount()
     {
         var accounts = BankAccountRepository.BankAccountNames;
@@ -19,7 +26,11 @@ public static class ConsoleCommands
         return BankAccountRepository.FindBankAccount(accountStr);
     }
 
-    public static  Category.Category ChooseCategory()
+    /// <summary>
+    /// Выбор категории из доступных
+    /// </summary>
+    /// <returns>Выбранная категория</returns>
+    public static Category.Category ChooseCategory()
     {
         var type = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -42,13 +53,21 @@ public static class ConsoleCommands
         return CategoryRepository.FindCategory(categoryStr);
     }
 
-    public static Double ChooseAmount()
+    /// <summary>
+    /// Ввод суммы
+    /// </summary>
+    /// <returns>Введенная сумма</returns>
+    public static double ChooseAmount()
     {
         return AnsiConsole.Prompt(
             new TextPrompt<double>("[yellow]Введите сумму:[/]")
                 .PromptStyle("yellow"));
     }
 
+    /// <summary>
+    /// Ввод описания
+    /// </summary>
+    /// <returns>Введенное описание</returns>
     public static string ChooseDescription()
     {
         return AnsiConsole.Prompt(
@@ -57,6 +76,10 @@ public static class ConsoleCommands
                 .AllowEmpty());
     }
 
+    /// <summary>
+    /// Выбор формата файла из доступных
+    /// </summary>
+    /// <returns>Выбранный формат</returns>
     public static string ChooseFormat()
     {
         return AnsiConsole.Prompt(
@@ -70,6 +93,10 @@ public static class ConsoleCommands
                 }));
     }
     
+    /// <summary>
+    /// Ввод названия файла
+    /// </summary>
+    /// <returns>Введенное название</returns>
     public static string InputFileName()
     {
         return AnsiConsole.Prompt(
@@ -77,6 +104,10 @@ public static class ConsoleCommands
                 .PromptStyle("yellow"));
     }
     
+    /// <summary>
+    /// Выбор экспортируемых обьектов
+    /// </summary>
+    /// <returns>Выбранный тип обьекта</returns>
     public static string ChooseExportData()
     {
         return AnsiConsole.Prompt(
@@ -90,6 +121,26 @@ public static class ConsoleCommands
                 }));
     }
     
+    /// <summary>
+    /// Выбор стратегии для аналитики
+    /// </summary>
+    /// <returns>Выбранная стратегия</returns>
+    public static string ChooseAnalyticsStrategy()
+    {
+        return AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[yellow]Выберите, какую аналитику посмотреть:[/]")
+                .PageSize(10)
+                .AddChoices(new[]
+                {
+                    "По времени выполнения операций",
+                    "По доходам и расходам",
+                }));
+    }
+    
+    /// <summary>
+    /// Ожидание ввода пользователя для возвращения
+    /// </summary>
     public static void AwaitInput()
     {
         AnsiConsole.Prompt(
