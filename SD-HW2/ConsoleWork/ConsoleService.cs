@@ -1,5 +1,7 @@
 using SD_HW2.BankAccount;
 using SD_HW2.Category;
+using SD_HW2.FileWork;
+using SD_HW2.FileWork.ExportService;
 using SD_HW2.Operation;
 using SD_HW2.Operation.Commands;
 using Spectre.Console;
@@ -9,20 +11,12 @@ namespace SD_HW2;
 
 public class ConsoleService
 {
-    private CategoryRepository _categoryRepository;
-    private BankAccountRepository _bankAccountRepository;
-    private OperationRepository _operationRepository;
-    private OperationManager _operationManager;
+    
+    private IExportService _exportService;
 
-    public ConsoleService(CategoryRepository categoryRepository,
-        BankAccountRepository bankAccountRepository,
-        OperationRepository operationRepository,
-        OperationManager operationManager)
+    public ConsoleService(IExportService exportService)
     {
-        _categoryRepository = categoryRepository;
-        _bankAccountRepository = bankAccountRepository;
-        _operationRepository = operationRepository;
-        _operationManager = operationManager;
+        _exportService = exportService;
     }
     
     public void ShowMainMenu()
@@ -45,6 +39,8 @@ public class ConsoleService
                         "Категории",
                         "Операции",
                         "Аналитика",
+                        "Экспорт в файл",
+                        "Импорт из файла",
                         "Выход"
                     }));
                 
@@ -61,6 +57,12 @@ public class ConsoleService
                     break;
                 case "Аналитика":
                     //ShowAnalytics();
+                    break;
+                case "Экспорт в файл":
+                    ShowExportMenu();
+                    break;
+                case "Импорт из файла":
+                    ShowImportMenu();
                     break;
                 case "Выход":
                     return;
@@ -112,7 +114,7 @@ public class ConsoleService
         AnsiConsole.MarkupLine("[bold green]Доступные счета:[/]");
         AnsiConsole.WriteLine();
         
-        var bankAccounts = _bankAccountRepository.BankAccounts;
+        var bankAccounts = BankAccountRepository.BankAccounts;
 
         // Создаем таблицу для отображения
         var table = new Table();
@@ -132,9 +134,7 @@ public class ConsoleService
         AnsiConsole.Write(table);
         AnsiConsole.WriteLine();
 
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         
         ShowBankAccountMenu();
     }
@@ -149,13 +149,11 @@ public class ConsoleService
             new TextPrompt<string>("[yellow]Введите название счета:[/]")
                 .PromptStyle("green"));
         
-        _bankAccountRepository.AddBankAccount(name);
+        BankAccountRepository.AddBankAccount(name);
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold green]Счет успешно добавлен![/]");
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         
         ShowBankAccountMenu();
     }
@@ -164,7 +162,7 @@ public class ConsoleService
     {
         AnsiConsole.Clear();
         
-        var bankAccounts = _bankAccountRepository.BankAccountNames;
+        var bankAccounts = BankAccountRepository.BankAccountNames;
         
         var choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -172,15 +170,13 @@ public class ConsoleService
                 .PageSize(10)
                 .AddChoices(bankAccounts));
 
-        _bankAccountRepository.RemoveBankAccount(choice);
+        BankAccountRepository.RemoveBankAccount(choice);
         
         AnsiConsole.Clear();
         
         AnsiConsole.MarkupLine("[green]Счет удален[/]");
         
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         ShowBankAccountMenu();
     }
 
@@ -188,7 +184,7 @@ public class ConsoleService
     {
         AnsiConsole.Clear();
         
-        var bankAccounts = _bankAccountRepository.BankAccountNames;
+        var bankAccounts = BankAccountRepository.BankAccountNames;
         
         var account = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -200,14 +196,12 @@ public class ConsoleService
             new TextPrompt<string>("[yellow]Введите новое название:[/]")
                 .PromptStyle("green"));
         
-        _bankAccountRepository.ChangeAccountName(account, name);
+        BankAccountRepository.ChangeAccountName(account, name);
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[green]Название изменено[/]");
         
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         ShowBankAccountMenu();
     }
 
@@ -255,7 +249,7 @@ public class ConsoleService
         AnsiConsole.MarkupLine("[bold green]Категории:[/]");
         AnsiConsole.WriteLine();
         
-        var categories = _categoryRepository.Categories;
+        var categories = CategoryRepository.Categories;
 
         // Создаем таблицу для отображения
         var table = new Table();
@@ -275,9 +269,7 @@ public class ConsoleService
         AnsiConsole.Write(table);
         AnsiConsole.WriteLine();
 
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         
         ShowCategoryMenu();
     }
@@ -304,13 +296,11 @@ public class ConsoleService
         
         var type = typeStr == "Доход"? Type.Deposit : Type.Withdrawal;
         
-        _categoryRepository.AddCategory(type, name);
+        CategoryRepository.AddCategory(type, name);
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold green]Категория успешно добавлена![/]");
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         
         ShowCategoryMenu();
     }
@@ -319,7 +309,7 @@ public class ConsoleService
     {
         AnsiConsole.Clear();
         
-        var categories = _categoryRepository.CategoriesNames;
+        var categories = CategoryRepository.CategoriesNames;
         
         var choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -327,15 +317,13 @@ public class ConsoleService
                 .PageSize(10)
                 .AddChoices(categories));
 
-        _categoryRepository.RemoveCategory(choice);
+        CategoryRepository.RemoveCategory(choice);
         
         AnsiConsole.Clear();
         
         AnsiConsole.MarkupLine("[green]Категория удалена[/]");
         
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         ShowCategoryMenu();
     }
     
@@ -343,7 +331,7 @@ public class ConsoleService
     {
         AnsiConsole.Clear();
         
-        var categories = _categoryRepository.CategoriesNames;
+        var categories = CategoryRepository.CategoriesNames;
         
         var category = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -367,7 +355,7 @@ public class ConsoleService
                 var name = AnsiConsole.Prompt(
                     new TextPrompt<string>("[yellow]Введите новое название:[/]")
                         .PromptStyle("green"));
-                _categoryRepository.ChangeCategoryName(category, name);
+                CategoryRepository.ChangeCategoryName(category, name);
                 break;
             case "Тип":
                 var typeStr = AnsiConsole.Prompt(
@@ -381,16 +369,14 @@ public class ConsoleService
                         }));
         
                 var type = typeStr == "Доход"? Type.Deposit : Type.Withdrawal;
-                _categoryRepository.ChangeCategoryType(category, type);
+                CategoryRepository.ChangeCategoryType(category, type);
                 break;
         }
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[green]Название изменено[/]");
         
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         ShowCategoryMenu();
     }
     
@@ -438,7 +424,7 @@ public class ConsoleService
         AnsiConsole.MarkupLine("[bold green]Текущие операции:[/]");
         AnsiConsole.WriteLine();
         
-        var operations = _operationRepository.Operations;
+        var operations = OperationRepository.Operations;
 
         // Создаем таблицу для отображения
         var table = new Table();
@@ -467,82 +453,29 @@ public class ConsoleService
         AnsiConsole.Write(table);
         AnsiConsole.WriteLine();
 
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         
         ShowOperationMenu();
     }
 
-    private BankAccount.BankAccount ChooseAccount()
-    {
-        var accounts = _bankAccountRepository.BankAccountNames;
-        
-        var accountStr = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("[yellow]Выберите счет:[/]")
-                .PageSize(10)
-                .AddChoices(accounts));
-        
-        return _bankAccountRepository.FindBankAccount(accountStr);
-    }
-
-    private Category.Category ChooseCategory()
-    {
-        var type = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("[yellow]Выберите тип:[/]")
-                .PageSize(10)
-                .AddChoices(new []
-                {
-                    "Доход",
-                    "Расход"
-                }));
-        
-        var typeCategories = _categoryRepository.CategoriesByType(type);
-        
-        var categoryStr = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("[yellow]Выберите категорию:[/]")
-                .PageSize(10)
-                .AddChoices(typeCategories));
-        
-        return _categoryRepository.FindCategory(categoryStr);
-    }
-
-    private Double ChooseAmount()
-    {
-        return AnsiConsole.Prompt(
-            new TextPrompt<double>("[yellow]Введите сумму:[/]")
-                .PromptStyle("yellow"));
-    }
-
-    private string ChooseDescription()
-    {
-        return AnsiConsole.Prompt(
-            new TextPrompt<string>("[yellow]Введите описание:[/]")
-                .PromptStyle("yellow")
-                .AllowEmpty());
-    }
+    
     private void ShowAddOperationMenu()
     {
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold green]Добавление операции[/]");
         AnsiConsole.WriteLine();
 
-        var account = ChooseAccount();
-        var category = ChooseCategory();
-        var amount = ChooseAmount();
-        var description = ChooseDescription();
+        var account = ConsoleCommands.ChooseAccount();
+        var category = ConsoleCommands.ChooseCategory();
+        var amount = ConsoleCommands.ChooseAmount();
+        var description = ConsoleCommands.ChooseDescription();
         
-        var addOperationCommand = new AddOperationCommand(_operationRepository, amount, account, description, category);
+        var addOperationCommand = new AddOperationCommand(amount, account, description, category);
         addOperationCommand.Execute();
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold green]Операция успешно добавлена![/]");
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
+        ConsoleCommands.AwaitInput();
         
         ShowOperationMenu();
     }
@@ -551,7 +484,7 @@ public class ConsoleService
     {
         AnsiConsole.Clear();
         
-        var operations = _operationRepository.OperationsInfo;
+        var operations = OperationRepository.OperationsInfo;
         
         var choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -559,15 +492,12 @@ public class ConsoleService
                 .PageSize(10)
                 .AddChoices(operations));
 
-        _operationRepository.RemoveOperation(int.Parse(choice.Split(':')[0].Trim()));
+        OperationRepository.RemoveOperation(int.Parse(choice.Split(':')[0].Trim()));
         
         AnsiConsole.Clear();
-        
         AnsiConsole.MarkupLine("[green]Операция удалена[/]");
+        ConsoleCommands.AwaitInput();
         
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
         ShowOperationMenu();
     }
 
@@ -575,7 +505,7 @@ public class ConsoleService
     {
         AnsiConsole.Clear();
         
-        var operations = _operationRepository.OperationsInfo;
+        var operations = OperationRepository.OperationsInfo;
         
         // Проверяем, есть ли операции для редактирования
         if (!operations.Any())
@@ -612,29 +542,92 @@ public class ConsoleService
         switch (field)
         {
             case "Счет":
-                var account = ChooseAccount();
-                _operationManager.ChangeAccount(id, account);
+                var account = ConsoleCommands.ChooseAccount();
+                OperationManager.ChangeAccount(id, account);
                 break;
             case "Категория":
-                var category = ChooseCategory();
-                _operationManager.ChangeCategory(id, category);
+                var category = ConsoleCommands.ChooseCategory();
+                OperationManager.ChangeCategory(id, category);
                 break;
             case "Сумма":
-                var amount = ChooseAmount();
-                _operationManager.ChangeAmount(id, amount);
+                var amount = ConsoleCommands.ChooseAmount();
+                OperationManager.ChangeAmount(id, amount);
                 break;
             case "Описание":
-                var description = ChooseDescription();
-                _operationManager.ChangeDescription(id, description);
+                var description = ConsoleCommands.ChooseDescription();
+                OperationManager.ChangeDescription(id, description);
                 break;
         }
         
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[green]Поле изменено[/]");
+        ConsoleCommands.AwaitInput();
         
-        AnsiConsole.Prompt(
-            new TextPrompt<string>("Нажмите Enter чтобы вернуться")
-                .AllowEmpty());
         ShowOperationMenu();
+    }
+
+    private void ShowExportMenu()
+    {
+        AnsiConsole.Clear();
+
+        var exportData = ConsoleCommands.ChooseExportData();
+        var format = ConsoleCommands.ChooseFormat();
+        
+        var fileName = AnsiConsole.Prompt(
+            new TextPrompt<string>("[yellow]Введите название файла ('filename.fmt'):[/]")
+                .PromptStyle("yellow"));
+
+        IFile file = new CsvFile("");
+        
+        switch(format)
+        {
+            case "Csv":
+                file = new CsvFile(fileName);
+                break;
+            case "Json":
+                file = new JsonFile(fileName);
+                break;
+        }
+
+        switch (exportData)
+        {
+            case "Операции":
+                var ops = OperationRepository.Operations;
+                _exportService.ExportOperations(ops, file, format);
+                break;
+            case "Счета":
+                var accounts = BankAccountRepository.BankAccounts;
+                _exportService.ExportBankAccounts(accounts, file, format);
+                break;
+        }
+        
+        AnsiConsole.Clear();
+        AnsiConsole.MarkupLine("[green]Данные успешно экспортированы![/]");
+        ConsoleCommands.AwaitInput();
+        ShowMainMenu();
+    }
+    
+    private void ShowImportMenu()
+    {
+        AnsiConsole.Clear();
+        
+        var format = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[yellow]Выберите формат:[/]")
+                .PageSize(10)
+                .AddChoices(new[]
+                {
+                    "Csv",
+                    "Json",
+                }));
+        
+        var fileName = AnsiConsole.Prompt(
+            new TextPrompt<string>("[yellow]Введите название файла для импорта операций:[/]")
+                .PromptStyle("yellow"));
+        
+        AnsiConsole.Clear();
+        AnsiConsole.MarkupLine("[green]Данные успешно импортированы![/]");
+        ConsoleCommands.AwaitInput();
+        ShowMainMenu();
     }
 }

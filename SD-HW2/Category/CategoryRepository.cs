@@ -1,12 +1,11 @@
 namespace SD_HW2.Category;
 
-public class CategoryRepository
+public static class CategoryRepository
 {
-    private ICategoryFactory _categoryFactory;
+    private static CategoryFactory _categoryFactory = new CategoryFactory();
+    public static List<Category> Categories { get; } = [];
     
-    public List<Category> Categories { get; }
-    
-    public List<String> CategoriesNames
+    public static List<String> CategoriesNames
     {
         get
         {
@@ -17,7 +16,7 @@ public class CategoryRepository
         }
     }
 
-    public List<String> CategoriesByType(string typeStr)
+    public static List<String> CategoriesByType(string typeStr)
     {
         List<String> categoriesNames = [];
 
@@ -33,20 +32,14 @@ public class CategoryRepository
         
         return categoriesNames;
     }
-
-    public CategoryRepository(ICategoryFactory categoryFactory)
-    {
-        _categoryFactory = categoryFactory;
-        Categories = [];
-    }
     
-    public void AddCategory(Type type, string name)
+    public static void AddCategory(Type type, string name)
     {
-        var category = _categoryFactory.createCategory(type, name);
+        var category = _categoryFactory.CreateCategory(type, name);
         Categories.Add(category);
     }
 
-    public void RemoveCategory(string name)
+    public static void RemoveCategory(string name)
     {
         bool found = false;
         foreach (var category in Categories)
@@ -65,7 +58,7 @@ public class CategoryRepository
         }
     }
     
-    public Category FindCategory(string name)
+    public static Category FindCategory(string name)
     {
         foreach (var category in Categories) 
         {
@@ -77,13 +70,13 @@ public class CategoryRepository
         throw new ArgumentOutOfRangeException($"Не существует категории с именем {name}");
     }
     
-    public void ChangeCategoryName(string name, string newName)
+    public static void ChangeCategoryName(string name, string newName)
     {
         var category = FindCategory(name);
         category.Name = newName;
     }
     
-    public void ChangeCategoryType(string name, Type newType)
+    public static void ChangeCategoryType(string name, Type newType)
     {
         var category = FindCategory(name);
         category.Type = newType;

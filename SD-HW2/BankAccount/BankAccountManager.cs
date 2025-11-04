@@ -3,14 +3,14 @@ namespace SD_HW2.BankAccount;
 /// <summary>
 /// Класс-фасад для управления балансом 
 /// </summary>
-public class BankAccountManager
+public static class BankAccountManager
 {
-    public void Withdraw(BankAccount account, double amount)
+    public static void Withdraw(BankAccount account, double amount)
     {
         account.Balance -= amount;
     }
 
-    public void Deposit(BankAccount account, double amount)
+    public static void Deposit(BankAccount account, double amount)
     {
         account.Balance += amount;
     }

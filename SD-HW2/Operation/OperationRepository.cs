@@ -3,14 +3,12 @@ using Type = SD_HW2.Category.Type;
 
 namespace SD_HW2.Operation;
 
-public class OperationRepository
+public static class OperationRepository
 {
-    private IOperationFactory _operationFactory;
-    private BankAccountManager _bankAccountManager;
+    private static readonly IOperationFactory _operationFactory = new OperationFactory();
+    public static List<Operation> Operations { get; } = [];
     
-    public List<Operation> Operations { get; }
-    
-    public List<String> OperationsInfo
+    public static List<String> OperationsInfo
     {
         get
         {
@@ -31,14 +29,8 @@ public class OperationRepository
             return ops;
         }
     }
-    public OperationRepository(IOperationFactory operationFactory,  BankAccountManager bankAccountManager)
-    {
-        _operationFactory = operationFactory;
-        _bankAccountManager = bankAccountManager;
-        Operations = [];
-    }
-
-    public Operation OperationById(int id)
+    
+    public static Operation OperationById(int id)
     {
         foreach (var op in Operations.Where(op => op.Id == id))
         {
@@ -48,24 +40,24 @@ public class OperationRepository
         throw new ArgumentOutOfRangeException($"Нет существует операции с ID {id}");
     }
     
-    public void AddOperation(double amount, BankAccount.BankAccount bankAccount, string? description, Category.Category category)
+    public static void AddOperation(double amount, BankAccount.BankAccount bankAccount, string? description, Category.Category category)
     {
         var date = DateTime.Now;
-        var operation = _operationFactory.createOperation(amount, bankAccount, date, description, category);
+        var operation = _operationFactory.CreateOperation(amount, bankAccount, date, description, category);
 
         if (category.Type == Type.Withdrawal)
         {
-            _bankAccountManager.Withdraw(bankAccount, amount);
+            BankAccountManager.Withdraw(bankAccount, amount);
         }
         else
         {
-            _bankAccountManager.Deposit(bankAccount, amount);
+            BankAccountManager.Deposit(bankAccount, amount);
         }
         
         Operations.Add(operation);
     }
 
-    public void RemoveOperation(int id)
+    public static void RemoveOperation(int id)
     {
         var found = false;
         foreach (var operation in Operations.Where(operation => operation.Id == id))
